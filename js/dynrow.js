@@ -251,7 +251,12 @@
             window.console.log(message);
         }
     };
-    //Dynrow
+    /**
+     * [Dynrow 动态添加行主体]
+     * @这里是哥自己写的哦
+     * @param {[String]} tableId     [table的id]
+     * @param {[object]} options     [参数]
+     */
     var DynamicRow = function(ele, options) {
         this.$element = $("#" + ele);
         this.option = $.extend({}, this.DEFAULT, options);
