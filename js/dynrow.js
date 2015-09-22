@@ -5,7 +5,253 @@
  @Site   ：http://dynrow.github.io
  @License：Apache License2.0
  */
-!(function($) {
+;!(function($) {
+    //模版引擎
+    /**
+     * [config 用的是闲心的 laytpl哦]
+     * @type {Object}
+     */
+    var config = {
+        open: '{{',
+        close: '}}',
+        reference: 'd'
+    };
+
+    var tool = {
+        exp: function(str) {
+            return new RegExp(str, 'g');
+        },
+        //匹配满足规则内容
+        query: function(type, _, __) {
+            var types = [
+                '#([\\s\\S])+?', //js语句
+                '([^{#}])*?' //普通字段
+            ][type || 0];
+            return exp((_ || '') + config.open + types + config.close + (__ || ''));
+        },
+        escape: function(html) {
+            return String(html || '').replace(/&(?!#?[a-zA-Z0-9]+;)/g, '&amp;')
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+        },
+        error: function(e, tplog) {
+            var error = 'Laytpl Error：';
+            typeof console === 'object' && console.error(error + e + '\n' + (tplog || ''));
+            return error + e;
+        }
+    };
+
+    var exp = tool.exp,
+        Tpl = function(tpl) {
+            this.tpl = tpl;
+        };
+
+    Tpl.pt = Tpl.prototype;
+
+    //核心引擎
+    Tpl.pt.parse = function(tpl, data) {
+        var that = this,
+            tplog = tpl;
+        var jss = exp('^' + config.open + '#', ''),
+            jsse = exp(config.close + '$', '');
+
+        tpl = tpl.replace(/[\r\t\n]/g, ' ').replace(exp(config.open + '#'), config.open + '# ')
+            .replace(exp(config.close + '}'), '} ' + config.close).replace(/\\/g, '\\\\')
+            .replace(/(?="|')/g, '\\').replace(tool.query(), function(str) {
+                str = str.replace(jss, '').replace(jsse, '');
+                return '";' + str.replace(/\\/g, '') + '; view+="';
+            }).replace(tool.query(1), function(str) {
+                var start = '"+(';
+                if (str.replace(/\s/g, '') === config.open + config.close) {
+                    return '';
+                }
+                str = str.replace(exp(config.open + '|' + config.close), '');
+                if (/^=/.test(str)) {
+                    str = str.replace(/^=/, '');
+                    start = '"+_escape_(';
+                }
+                return start + str.replace(/\\/g, '') + ')+"';
+            });
+
+        tpl = '"use strict";var view = "' + tpl + '";return view;';
+        //console.log(tpl);
+        try {
+            that.cache = tpl = new Function('' + config.reference + ', _escape_', tpl);
+            return tpl(data, tool.escape);
+        } catch (e) {
+            delete that.cache;
+            return tool.error(e, tplog);
+        }
+    };
+
+    Tpl.pt.render = function(data, callback) {
+        var that = this,
+            tpl;
+        if (!data) return tool.error('no data');
+        tpl = that.cache ? that.cache(data, tool.escape) : that.parse(that.tpl, data);
+        if (!callback) return tpl;
+        callback(tpl);
+    };
+
+    var laytpl = function(tpl) {
+        if (typeof tpl !== 'string') return tool.error('Template not found');
+        return new Tpl(tpl);
+    };
+
+    laytpl.config = function(options) {
+        options = options || {};
+        for (var i in options) {
+            config[i] = options[i];
+        }
+    };
+    //填充表单方法
+    /**
+     * [Fill 用的是jquery.fill.js]
+     */
+    function Fill() {
+        this.defaults = {
+            styleElementName: 'none', // object | none
+            dateFormat: 'mm/dd/yy',
+            debug: false,
+            elementsExecuteEvents: ['checkbox', 'radio', 'select-one']
+        };
+    };
+    $.extend(Fill.prototype, {
+        setDefaults: function(settings) {
+            this.defaults = $.extend({}, this.defaults, settings);
+            return this;
+        },
+
+        fill: function(obj, _element, settings) {
+            if (settings == null) {
+                settings = {};
+            }
+            var options = $.extend({}, this.defaults, settings);
+            _element.find("*").each(function(i, item) {
+                if ($(item).is("input") || $(item).is("select") || $(item).is("textarea")) {
+                    try {
+                        var objName;
+                        var arrayAtribute;
+                        try {
+
+                            if (options.styleElementName == "object") {
+                                // Verificando se � um array
+                                if ($(item).attr("name").match(/\[[0-9]*\]/i)) {
+                                    objName = $(item).attr("name").replace(/^[a-z]*[0-9]*[a-z]*\./i, 'obj.').replace(/\[[0-9]*\].*/i, "");
+
+                                    arrayAtribute = $(item).attr("name").match(/\[[0-9]*\]\.[a-z0-9]*/i) + "";
+                                    arrayAtribute = arrayAtribute.replace(/\[[0-9]*\]\./i, "");
+                                } else {
+                                    objName = $(item).attr("name").replace(/^[a-z]*[0-9]*[a-z]*\./i, 'obj.');
+                                }
+                            } else if (options.styleElementName == "none") {
+                                objName = 'obj.' + $(item).attr("name");
+                            }
+                            var value = eval(objName);
+                        } catch (e) {
+                            if (options.debug) {
+                                debug(e.message);
+                            }
+                        }
+                        if (value != null) {
+                            switch (item.type) {
+                                case "hidden":
+                                case "password":
+                                case "textarea":
+                                    $(item).val(value);
+                                    break;
+
+                                case "text":
+                                    if ($(item).hasClass("hasDatepicker")) {
+                                        var re = /^[-+]*[0-9]*$/;
+                                        var dateValue = null;
+                                        if (re.test(value)) {
+                                            dateValue = new Date(parseInt(value));
+                                            var strDate = dateValue.getUTCFullYear() + '-' + (dateValue.getUTCMonth() + 1) + '-' + dateValue.getUTCDate();
+                                            dateValue = $.datepicker.parseDate('yy-mm-dd', strDate);
+                                        } else if (value) {
+                                            dateValue = $.datepicker.parseDate(options.dateFormat, value);
+                                        }
+                                        $(item).datepicker('setDate', dateValue);
+                                    } else if ($(item).attr("alt") == "double") {
+                                        $(item).val(value.toFixed(2));
+                                    } else {
+                                        $(item).val(value);
+                                    }
+                                    break;
+
+                                case "select-one":
+                                    if (value) {
+                                        $(item).val(value);
+                                    }
+                                    break;
+                                case "radio":
+                                    $(item).each(function(i, radio) {
+                                        if ($(radio).val() == value) {
+                                            $(radio).prop("checked", "checked");
+                                        }
+                                    });
+                                    break;
+                                case "checkbox":
+                                    if ($.isArray(value)) {
+                                        $.each(value, function(i, arrayItem) {
+                                            if (typeof(arrayItem) == 'object') {
+                                                arrayItemValue = eval("arrayItem." + arrayAtribute);
+                                            } else {
+                                                arrayItemValue = arrayItem;
+                                            }
+                                            if ($(item).val() == arrayItemValue) {
+                                                $(item).attr("checked", "checked");
+                                            }
+                                        });
+                                    } else {
+                                        var values = value.split(",");
+                                        for (var i = 0; i < values.length; i++) {
+                                            if (values[i] == $(item).val()) {
+                                                $(item).attr("checked", "checked");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    break;
+                            }
+                            executeEvents(item);
+                        }
+                    } catch (e) {
+                        if (options.debug) {
+                            debug(e.message);
+                        }
+                    }
+
+                }
+
+            });
+        }
+    });
+    $.fn.fill = function(obj, settings) {
+        $.fill.fill(obj, $(this), settings);
+        return this;
+    };
+
+    $.fill = new Fill();
+
+    function executeEvents(element) {
+        if (jQuery.inArray($(element).attr('type'), $.fill.defaults.elementsExecuteEvents)) {
+            if ($(element).attr('onchange')) {
+                $(element).change();
+            }
+
+            if ($(element).attr('onclick')) {
+                $(element).click();
+            }
+        }
+    };
+
+    function debug(message) { // Throws error messages in the browser console.
+        if (window.console && window.console.log) {
+            window.console.log(message);
+        }
+    };
+    //Dynrow
     var DynamicRow = function(ele, options) {
         this.$element = $("#" + ele);
         this.option = $.extend({}, this.DEFAULT, options);
@@ -41,7 +287,8 @@
             deleteLast: true,
             callback: null,
             deleteback: null,
-            echoData: null
+            echoData: null,
+            echoForm:null
         },
         /**
          * 添加一行
@@ -99,10 +346,10 @@
             for (var i = 0; i < obj[value].length; i++) {
                 that.addOneLine();
             }
-            if ($.fill) {
-                $("#formTest").fill(obj);
+            if (that.option.echoForm) {
+                $("#"+that.option.echoForm).fill(obj);
             } else {
-                throw Error('回显数据没有引用jquery.fill.js');
+                throw Error('回显数据活formid填写错误！！');
             }
         },
         /**

@@ -126,6 +126,12 @@
 							<td>是否可以删除最后一行（仅限于本插件添加上的行，默认写在页面上的本功能无效）</td>
 						</tr>
 						<tr>
+							<td>echoForm</td>
+							<td>无</td>
+							<td>有回显数据则必填</td>
+							<td>回显form的id标识，只能是form的id 有回显数据时容器必须是form</td>
+						</tr>
+						<tr>
 							<td>echoData</td>
 							<td>无</td>
 							<td>否</td>
@@ -167,6 +173,7 @@
 		            reference  : null,
 		            deflutOne: true,		//是否默认添加一行			选填
 		            deleteLast: true,		//是否可以删除一行不剩		选填
+		            echoForm  : "formTest",	//回显form的id标识			选填（注*有回显数据则必填）
 		            echoData : {
 		            	data : [
 		            		{
@@ -230,7 +237,7 @@
 		<div class="footer hide">
 			 版权所有：长春嘉诚网络工程有限公司
 		</div>
-		<script id="tableTmpl" type="text/x-jquery-tmpl">
+		<script id="tableTmpl" type="text/html">
             <tr>
 				<td><input type="text" name="data[{{ indexId}}].myName"/></td>
 				<td><input type="text" name="data[{{ indexId}}].myAge"/></td>
@@ -239,7 +246,7 @@
 			</tr>
         </script>
 
-        <script id="tableTmpl3" type="text/x-jquery-tmpl">
+        <script id="tableTmpl3" type="text/html">
             <tr>
                 <td style="width:20%;" class="text-left">
                 	<input type="text"/>
@@ -249,10 +256,8 @@
 			</tr>
         </script>
         <script type="text/javascript" src="js/util/jquery.min.js"></script>
+        <script type="text/javascript" src="js/dynrow.min.js"></script>
         <script type="text/javascript" src="js/util/prism.js"></script>
-        <script type="text/javascript" src="js/util/jquery.fill.js"></script>
-        <script type="text/javascript" src="js/util/laytpl.js"></script>
-        <script type="text/javascript" src="js/dynrow.js"></script>
         <script type="text/javascript">
 			var indexId = 0,
 				tplRow1,
@@ -275,10 +280,11 @@
 		                    name   : "auto-td-name"
 		                }
 		            },
-		            reference  : null,
-		            deflutOne: true,		//是否默认添加一行			选填
+		            reference : null,
+		            deflutOne : true,		//是否默认添加一行			选填
 		            deleteLast: true,		//是否可以删除一行不剩		选填
-		            echoData : {
+		            echoForm  : "formTest",	//回显form的id标识
+		            echoData  : {
 		            	data : [
 		            		{
 		            			myName : "11111",
