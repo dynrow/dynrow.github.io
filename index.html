@@ -187,9 +187,11 @@
 		            	]
 		            },		
 		            callback : function (html) {
+		                //@param html [type=dom] 当前添加上的这行html
 		                indexId++;			//添加按钮的元素上必须要有data-table="row"属性
 		            },
 		            deleteback:function(len){
+		            	//@param len [type=number] 剩余行数
 		            	if(len == 0){		//删除按钮的元素上必须要有delete样式 class="delete"
 		            		alert("都删除没了");
 		            	}
