@@ -1,0 +1,11 @@
+{
+  "name": "Dynrow",
+  "version": "1.0",
+  "description": "专注于动态添加行的插件",
+  "keywords": [
+    "fis",
+    "dynrow"
+  ],
+  "repository": "https://github.com/dynrow/dynrow.github.io",
+  "license": "Apache License2.0"
+}

@@ -274,8 +274,6 @@
 
     DynamicRow.prototype = {
         init: function() {
-            var x = 1000,
-                y = 10;
             this.keyClass = this.guid();
             this.isRow = !0;
             this.addClickLine();
@@ -283,17 +281,18 @@
             this.echoListLine();
         },
         DEFAULT: {
-            id: "",
-            addNextId: null,
-            selector: "tr [data-table='row']",
-            params: null,
-            deflutOne: true,
-            addLineNum: 0,
-            deleteLast: true,
-            callback: null,
-            deleteback: null,
-            echoData: null,
-            echoForm:null
+            tmplId      : "",
+            addNextId   : null,
+            selector    : "[data-table='dynrow']",
+            params      : null,
+            deflutOne   : true,
+            addLineNum  : 0,
+            deleteLast  : true,
+            callback    : null,
+            deleteback  : null,
+            echoData    : null,
+            echoForm    : null,
+            checkRow    : "[data-table='rowspan']"
         },
         /**
          * 添加一行
@@ -309,7 +308,7 @@
             $(obj).after(template);
             this.option.addLineNum++;
             //检查是否含有跨列
-            if (this.isRow) this.addRowspan();
+            this.addRowspan();
             //检查回调函数
             if (typeof this.option.callback === "function") {
                 this.option.callback.call(this, template);
@@ -323,7 +322,7 @@
             var that = this;
             that.$element.on("click", that.option.selector, function(e) {
                 if ($(this).hasClass("delete")) return false;
-                that.getLaytpl(that.option.id, that.option.params, function(html) {
+                that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
                     var obj = that.$element.find("." + that.keyClass);
                     if (obj.length === 0) {
                         obj = that.getAddDom();
@@ -377,7 +376,7 @@
         addOneLine: function() {
             var that = this;
             if (that.option.deflutOne) {
-                that.getLaytpl(that.option.id, that.option.params, function(html) {
+                that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
                     var obj = that.getAddDom();
                     that.addLine(obj, html);
                 });
@@ -452,14 +451,14 @@
          * @param {[type]} obj [description]
          */
         addRowspan: function(obj) {
-            var objs = this.$element.find("[data-table='rowspan']");
+            var objs = this.$element.find(this.option.checkRow);
             if (objs.length) {
                 var obj = objs[objs.length - 1];
                 obj.setAttribute("rowspan", (parseInt(obj.getAttribute("rowspan"), 10) + 1));
             }
         },
         minusRowspan: function(obj) {
-            var objs = this.$element.find("[data-table='rowspan']");
+            var objs = this.$element.find(this.option.checkRow);
             if (objs.length) {
                 var obj = objs[objs.length - 1];
                 obj.setAttribute("rowspan", (parseInt(obj.getAttribute("rowspan"), 10) - 1));
