@@ -14,7 +14,6 @@
 	</head>
 	<body>
 		<div class="header">
-			<img src="imgs/logo.gif" height="31" width="88" style="position: absolute;top: 15px;left: 20px;"/>
 			<div class="header-inner">
 				<nav id="nav-menu">
 					<ul>
@@ -35,7 +34,7 @@
 				Dynrow动态添加行调用</h3>
 				<table class="table" id="testTable">
 					<tr id="tmpl1-tr-id">
-						<td style="width:20%;" class="range meta">学生姓名</td>
+						<td style="width:25%;" class="range meta">学生姓名</td>
 						<td style="width:20%;" class="range meta">年龄</td>
                         <td class="range meta">班级</td>
 						<td class="range" style="width: 100px;"><a href="#" name="tmpl1" class="btn btn-primary" data-table="dynrow">添加</a></td>
@@ -45,7 +44,7 @@
 				<form id="formTest">
 					<table class="table" id="testTable2">
 						<tr id="tmpl1-tr-id">
-							<td style="width:20%;" class="range meta">学生姓名</td>
+							<td style="width:25%;" class="range meta">学生姓名</td>
 							<td style="width:20%;" class="range meta">年龄</td>
 	                        <td class="range meta">班级</td>
 							<td class="range" style="width: 100px;"><a href="#" name="tmpl1" class="btn btn-primary" data-table="dynrow">添加</a></td>
@@ -373,6 +372,30 @@
 			}
 
 		</script>
-		<a href="https://github.com/dynrow/dynrow.github.io" class="forkme">Fork me on GitHub</a>
+		<a href="https://github.com/dynrow/dynrow.github.io" class="forkme" id="forkme">
+		<span class="github">Fork me on GitHub</span>
+		<span class="code">Code</span>
+		</a>
+		<script type="text/javascript">
+		var isResize = true;
+		function setForkGit(){
+			var width = window.screen.availWidth;
+			if(width/3 > 340) isResize = false;
+			if(isResize){
+				$("#forkme").css({
+					width  : (width/3)+'px',
+					top    : (width/20)+'px',
+					right  : -(width/10)+'px'
+				});
+			}
+		}
+		setForkGit();
+		$(document).ready(function(){
+			$(window).resize(function(){
+				if(isResize) setForkGit();
+			});
+		});
+		
+		</script>
 	</body>
 </html>
