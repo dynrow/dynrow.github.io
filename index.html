@@ -376,26 +376,5 @@
 		<span class="github">Fork me on GitHub</span>
 		<span class="code">Code</span>
 		</a>
-		<script type="text/javascript">
-		var isResize = true;
-		function setForkGit(){
-			var width = window.screen.availWidth;
-			if(width/3 > 340) isResize = false;
-			if(isResize){
-				$("#forkme").css({
-					width  : (width/3)+'px',
-					top    : (width/20)+'px',
-					right  : -(width/10)+'px'
-				});
-			}
-		}
-		setForkGit();
-		$(document).ready(function(){
-			$(window).resize(function(){
-				if(isResize) setForkGit();
-			});
-		});
-		
-		</script>
 	</body>
 </html>
