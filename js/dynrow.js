@@ -338,7 +338,7 @@
         echoListLine: function() {
             var that = this,
                 obj = that.option.echoData;
-            obj ? that.insertData(obj) : that.addOneLine();
+            obj ? that.insertData(obj) : that.addDefaultLine();
         },
         /**
          * @param data          回显数据
@@ -353,7 +353,7 @@
             if (that.option.echoForm) {
                 $("#"+that.option.echoForm).fill(obj);
             } else {
-                throw Error('回显数据活formid填写错误！！');
+                throw Error('回显数据或formid填写错误！！');
             }
         },
         /**
@@ -370,10 +370,7 @@
                 }
             }
         },
-        /**
-         * [addOneLine 添加一行]
-         */
-        addOneLine: function() {
+        addDefaultLine : function(){
             var that = this;
             if (that.option.deflutOne) {
                 that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
@@ -381,6 +378,16 @@
                     that.addLine(obj, html);
                 });
             }
+        },
+        /**
+         * [addOneLine 添加一行]
+         */
+        addOneLine: function() {
+            var that = this;
+            that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
+                var obj = that.getAddDom();
+                that.addLine(obj, html);
+            });
         },
         /**
          * [getAddDom 获取dom]
