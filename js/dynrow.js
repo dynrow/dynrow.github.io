@@ -323,11 +323,7 @@
             that.$element.on("click", that.option.selector, function(e) {
                 if ($(this).hasClass("delete")) return false;
                 that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                    var obj = that.$element.find("." + that.keyClass);
-                    if (obj.length === 0) {
-                        obj = that.getAddDom();
-                    }
-                    that.addLine(obj[obj.length - 1], html);
+                    that.addLine(that.getAddDom(), html);
                 });
                 return false;
             });
@@ -374,8 +370,7 @@
             var that = this;
             if (that.option.deflutOne) {
                 that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                    var obj = that.getAddDom();
-                    that.addLine(obj, html);
+                    that.addLine(that.getAddDom(), html);
                 });
             }
         },
@@ -385,8 +380,7 @@
         addOneLine: function() {
             var that = this;
             that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                var obj = that.getAddDom();
-                that.addLine(obj, html);
+                that.addLine(that.getAddDom(), html);
             });
         },
         /**
@@ -395,9 +389,9 @@
          */
         getAddDom: function() {
             var that = this,
-                dom = that.$element.find("." + that.keyClass);
-            if (dom.length === 0) {
                 dom = that.$element.find("#" + that.option.addNextId);
+            if (dom.length === 0) {
+                dom = that.$element.find("." + that.keyClass);
             }
             if (dom.length === 0) {
                 dom = that.$element.find("tr");
