@@ -1,4 +1,4 @@
-﻿/**
+/**
  @Name   : dynrow v1.0 - 动态添加行插件
  @Author : 戈志刚
  @Date   : 2015-9-22
@@ -283,6 +283,7 @@
         DEFAULT: {
             tmplId      : "",
             addNextId   : null,
+            position    : false,
             selector    : "[data-table='dynrow']",
             params      : null,
             deflutOne   : true,
@@ -305,7 +306,7 @@
                 template = $(temp);
             //为当前模版添唯一标识，添加行时判断最后一行用
             template.addClass(this.keyClass);
-            $(obj).after(template);
+            $(obj)[opt.position?'before':'after'](template);
             this.option.addLineNum++;
             //检查是否含有跨列
             this.addRowspan();
