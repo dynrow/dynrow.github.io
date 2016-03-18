@@ -164,7 +164,7 @@
 							<td>[data-table='dynrow']</td>
 							<td>否</td>
 							<td>table内添加按钮选择器例：<br /><span class="text-green">&lt;a href="#" class="btn" data-table="dynrow"&gt;添加&lt;/a&gt;</span>
-								<br /><span class="text-red">PS：选择器只在当前table范围内查找，如需在在外部使用添加行请使用实例化对象调用addOneRow方法</span>
+								<br /><span class="text-red">PS：选择器只在当前table范围内查找，如需在在外部使用添加行请使用实例化对象调用addORow方法</span>
 							</td>
 						</tr>
 						<tr>
@@ -237,13 +237,21 @@
 		            }
 				});
 					//清空所有行
-					table.replacement();
+					table.clearAll();
 					//添加一行
-					table..addOneRow();
-					//删除一行 （最后添加的那一行）
-					table.replacement();
-					//获取最后添加一行的dom
-					table.getAddDom();
+					table.addRow();
+
+					/**
+					*  删除一行
+					*  如不填写index值则删除最后一行
+					*/
+					table.deleteRow(index);
+
+					/**
+					*  获取行的dom对象 
+					*  如不填写index值则返回最后一行，如没有值则返回undefined
+					*/
+					table.getRow(index);
                     </code>
                 </pre>
             </section>
@@ -362,31 +370,31 @@
 			});
 
 			function clearOne(){
-				tplRow1.replacement();
+				tplRow1.clearAll();
 			}
 
 			function clearTwo(){
-				tplRow2.replacement();
+				tplRow2.clearAll();
 			}
 
 			function clearThree(){
-				tplRow3.replacement();
+				tplRow3.clearAll();
 			}
 
 			function addOneRow(){
-				tplRow1.addOneRow();
+				tplRow1.addRow();
 			}
 
 			function threeAddRow(){
-				tplRow3.addOneRow();
+				tplRow3.addRow();
 			}
 
 			function threeDeleteRow(){
-				tplRow3.deleteLastRow();
+				tplRow3.deleteRow();
 			}
 
 			function getRow(){
-				var dom = tplRow1.getAddDom();
+				var dom = tplRow1.getRow();
 				if(window.console && console.log)console.log(dom);
 			}
 

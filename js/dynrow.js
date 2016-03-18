@@ -349,7 +349,7 @@
                 value = "";
             for (i in obj) value = i;
             for (var i = 0; i < obj[value].length; i++) {
-                that.addOneRow();
+                that.addRow();
             }
             if (that.option.echoForm) {
                 $("#"+that.option.echoForm).fill(obj);
@@ -357,34 +357,11 @@
                 throw Error('回显数据或formid填写错误！！');
             }
         },
-        /**
-         * [clearAll 清空所有行]
-         * @return {[type]} [description]
-         */
-        clearAll: function() {
-            var that = this;
-            var trs = that.$element.find("." + that.keyClass);
-            if (trs.length) {
-                for (var j = 0; j < trs.length; j++) {
-                    $(trs[j]).remove();
-                    that._minusRowspan();
-                }
-            }
-        },
         _addDefaultLine : function(){
             var that = this;
             if (that.option.deflutOne) {
-                that.addOneRow();
+                that.addRow();
             }
-        },
-        /**
-         * [addOneRow 添加一行]
-         */
-        addOneRow: function() {
-            var that = this;
-            that._getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                that._addLine(that._getAddDom(), html);
-            });
         },
         /**
          * [_getAddDom 获取dom]
@@ -432,16 +409,6 @@
             }
         },
         /**
-         * [deleteLastRow 删除一行]
-         * 从最后一行开始
-         * @return {[type]} [description]
-         */
-        deleteLastRow: function() {
-            var that = this,
-                trs = that.$element.find("." + that.keyClass);
-            if (trs.length) that._deleteRow($(trs[trs.length - 1]));
-        },
-        /**
          * [_addRowspan 检查是否含有跨列]
          * @param {[type]} obj [description]
          */
@@ -458,6 +425,57 @@
                 var obj = objs[objs.length - 1];
                 obj.setAttribute("rowspan", (parseInt(obj.getAttribute("rowspan"), 10) - 1));
             }
+        },
+        /**
+         * [addRow 添加一行]
+         */
+        addRow: function() {
+            var that = this;
+            that._getLaytpl(that.option.tmplId, that.option.params, function(html) {
+                that._addLine(that._getAddDom(), html);
+            });
+        },
+        /**
+         * [deleteLastRow 删除一行]
+         * 从最后一行开始
+         * @return {[type]} [description]
+         */
+        deleteRow: function(index) {
+            var that = this,
+                trs = that.$element.find("." + that.keyClass);
+            if (trs.length) {
+                var trDom = trs[typeof index === 'number'?index:(trs.length - 1)];
+                if(trDom)that._deleteRow($(trDom));
+            }
+        },
+         /**
+         * [clearAll 清空所有行]
+         * @return {[type]} [description]
+         */
+        clearAll: function() {
+            var that = this;
+            var trs = that.$element.find("." + that.keyClass);
+            if (trs.length) {
+                for (var j = 0; j < trs.length; j++) {
+                    $(trs[j]).remove();
+                    that._minusRowspan();
+                }
+            }
+        },
+        /**
+         * [getRow 获取已添加上的行对象 默认返回最后添加一行  没有返回null]
+         * @parms  [index]  指点获取的行 如不填写index值则返回最后一行，如没有值则返回undefined
+         * @return {[type]} [description]
+         */
+        getRow : function(index){
+            var result = null,
+                trs    = this.$element.find("." + this.keyClass);
+            if(trs.length) {
+                try{
+                    result = trs[typeof index === 'number'?index:(trs.length - 1)];
+                }catch(e){}
+            }
+            return result;
         },
         /**
          * 生成动态不重复的一个16位的唯一标识
