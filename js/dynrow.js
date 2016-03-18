@@ -73,7 +73,7 @@
             });
 
         tpl = '"use strict";var view = "' + tpl + '";return view;';
-        //console.log(tpl);
+
         try {
             that.cache = tpl = new Function('' + config.reference + ', _escape_', tpl);
             return tpl(data, tool.escape);
@@ -275,10 +275,8 @@
     DynamicRow.prototype = {
         init: function() {
             this.keyClass = this.guid();
-            this.isRow = !0;
-            this.addClickLine();
-            this.deleteLine();
-            this.echoListLine();
+            this._addEvent();
+            this._echoListLine();
         },
         DEFAULT: {
             tmplId      : "",
@@ -287,10 +285,10 @@
             selector    : "[data-table='dynrow']",
             params      : null,
             deflutOne   : true,
-            addLineNum  : 0,
             deleteLast  : true,
-            callback    : null,
-            deleteback  : null,
+            fnAdd       : null,
+            fnDel       : null,
+            fnDelBefore : null,
             echoData    : null,
             echoForm    : null,
             checkRow    : "[data-table='rowspan']"
@@ -301,51 +299,57 @@
          * @param y             模版标识
          * @param template      模版
          */
-        addLine: function(obj, temp) {
+        _addLine: function(obj, temp) {
             var opt = this.option,
                 template = $(temp);
             //为当前模版添唯一标识，添加行时判断最后一行用
             template.addClass(this.keyClass);
             $(obj)[opt.position?'before':'after'](template);
-            this.option.addLineNum++;
             //检查是否含有跨列
-            this.addRowspan();
+            this._addRowspan();
             //检查回调函数
-            if (typeof this.option.callback === "function") {
-                this.option.callback.call(this, template);
+            if (typeof opt.fnAdd === "function") {
+                opt.fnAdd.call(this, template);
             }
         },
         /**
          * 在需要绑定事件的元素中添加 data-table='row' 自定义属性
          * 向下添加一行，内容重置，默认只清空 (文本框，单选框，复选框，文本域)
          */
-        addClickLine: function() {
-            var that = this;
-            that.$element.on("click", that.option.selector, function(e) {
+        _addEvent: function() {
+            var that = this,
+                opt  = that.option;
+            //添加行事件
+            that.$element.on("click", opt.selector, function(e) {
                 if ($(this).hasClass("delete")) return false;
-                that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                    that.addLine(that.getAddDom(), html);
+                that._getLaytpl(opt.tmplId, opt.params, function(html) {
+                    that._addLine(that._getAddDom(), html);
                 });
+                return false;
+            });
+            //删除行事件
+            that.$element.on("click", ".delete", function(e) {
+                that._deleteRow($(this).closest('tr'));
                 return false;
             });
         },
         /**
          * 回显数据调用
          */
-        echoListLine: function() {
+        _echoListLine: function() {
             var that = this,
                 obj = that.option.echoData;
-            obj ? that.insertData(obj) : that.addDefaultLine();
+            obj ? that._insertData(obj) : that._addDefaultLine();
         },
         /**
          * @param data          回显数据
          */
-        insertData: function(obj) {
+        _insertData: function(obj) {
             var that = this,
                 value = "";
             for (i in obj) value = i;
             for (var i = 0; i < obj[value].length; i++) {
-                that.addOneLine();
+                that.addOneRow();
             }
             if (that.option.echoForm) {
                 $("#"+that.option.echoForm).fill(obj);
@@ -354,41 +358,39 @@
             }
         },
         /**
-         * [replacement 清空所有行]
+         * [clearAll 清空所有行]
          * @return {[type]} [description]
          */
-        replacement: function() {
+        clearAll: function() {
             var that = this;
             var trs = that.$element.find("." + that.keyClass);
             if (trs.length) {
                 for (var j = 0; j < trs.length; j++) {
                     $(trs[j]).remove();
-                    that.minusRowspan();
+                    that._minusRowspan();
                 }
             }
         },
-        addDefaultLine : function(){
+        _addDefaultLine : function(){
             var that = this;
             if (that.option.deflutOne) {
-                that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                    that.addLine(that.getAddDom(), html);
-                });
+                that.addOneRow();
             }
         },
         /**
-         * [addOneLine 添加一行]
+         * [addOneRow 添加一行]
          */
-        addOneLine: function() {
+        addOneRow: function() {
             var that = this;
-            that.getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                that.addLine(that.getAddDom(), html);
+            that._getLaytpl(that.option.tmplId, that.option.params, function(html) {
+                that._addLine(that._getAddDom(), html);
             });
         },
         /**
-         * [getAddDom 获取dom]
+         * [_getAddDom 获取dom]
          * @return {[type]} [description]
          */
-        getAddDom: function() {
+        _getAddDom: function() {
             var that = this,
                 dom = that.$element.find("#" + that.option.addNextId);
             if (dom.length === 0) {
@@ -400,66 +402,57 @@
             return dom.length > 1 ? dom[dom.length - 1] : dom;
         },
         /**
-         * [getLaytpl 获取模版]
+         * [_getLaytpl 获取模版]
          * @param  {[type]}   tmpl     [模版内容]
          * @param  {[type]}   data     [模版数据]
          * @param  {Function} callback [回调函数]
          */
-        getLaytpl: function(tmpl, data, callback) {
+        _getLaytpl: function(tmpl, data, callback) {
             var tpl = document.getElementById(tmpl).innerHTML; //读取模版
             //方式一：异步渲染（推荐）
             laytpl(tpl).render(data ? data : {}, function(html) {
                 callback.call(undefined, html);
             });
         },
-        //删除当前行，第一行不执行事件
-        deleteLine: function() {
-            var that = this;
-            that.$element.on("click", ".delete", function(e) {
-                if (that.option.addLineNum == 1) {
-                    if (!that.option.deleteLast) {
-                        if (typeof that.option.deleteback === "function") {
-                            that.option.deleteback.call(that, that.$element.find("." + that.keyClass).length);
-                        }
-                        return;
-                    }
-                }
-                that.minusRowspan();
-                $(this).closest("tr").remove();
-                that.option.addLineNum--;
-                if (typeof that.option.deleteback === "function") {
-                    that.option.deleteback.call(that, that.$element.find("." + that.keyClass).length);
-                }
-                return false;
-            });
-        },
-        /**
-         * [deleteLastLine 删除一行]
-         * @return {[type]} [description]
-         */
-        deleteLastLine: function() {
+        _deleteRow : function($tr){
             var that = this,
-                trs = that.$element.find("." + that.keyClass);
-            if (trs.length) {
-                $(trs[trs.length - 1]).remove();
-                that.minusRowspan();
-                if (typeof that.option.deleteback === "function") {
-                    that.option.deleteback.call(that, that.$element.find("." + that.keyClass).length);
-                }
+                opt  = that.option,
+                len  = that.$element.find("." + that.keyClass).length;
+
+            if (!opt.deleteLast && len === 1) {
+                return false;
+            }
+            if(opt.fnDelBefore === 'function'){
+                opt.fnDelBefore.call({}, $tr);
+            }
+            $tr.remove();
+            that._minusRowspan();
+            if (typeof opt.fnDel === "function") {
+                opt.fnDel.call({}, len-1);
             }
         },
         /**
-         * [addRowspan 检查是否含有跨列]
+         * [deleteLastRow 删除一行]
+         * 从最后一行开始
+         * @return {[type]} [description]
+         */
+        deleteLastRow: function() {
+            var that = this,
+                trs = that.$element.find("." + that.keyClass);
+            if (trs.length) that._deleteRow($(trs[trs.length - 1]));
+        },
+        /**
+         * [_addRowspan 检查是否含有跨列]
          * @param {[type]} obj [description]
          */
-        addRowspan: function(obj) {
+        _addRowspan: function(obj) {
             var objs = this.$element.find(this.option.checkRow);
             if (objs.length) {
                 var obj = objs[objs.length - 1];
                 obj.setAttribute("rowspan", (parseInt(obj.getAttribute("rowspan"), 10) + 1));
             }
         },
-        minusRowspan: function(obj) {
+        _minusRowspan: function(obj) {
             var objs = this.$element.find(this.option.checkRow);
             if (objs.length) {
                 var obj = objs[objs.length - 1];

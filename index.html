@@ -85,7 +85,7 @@
 						<tr>
 							<td>tmplId</td>
 							<td>无</td>
-							<td>是</td>
+							<td><span class="text-red">是</span></td>
 							<td>模版id</td>
 						</tr>
 						<tr>
@@ -124,6 +124,12 @@
 							<td>是否可以删除最后一行（仅限于本插件添加上的行，默认写在页面上的本功能无效）</td>
 						</tr>
 						<tr>
+							<td>position</td>
+							<td>false</td>
+							<td>否</td>
+							<td>控制向addNextId参数的上面还是下面添加行，默认false向下添加</td>
+						</tr>
+						<tr>
 							<td>echoForm</td>
 							<td>无</td>
 							<td>有回显数据则必填</td>
@@ -136,23 +142,29 @@
 							<td>回显数据</td>
 						</tr>
 						<tr>
-							<td>callback</td>
+							<td>fnAdd</td>
 							<td>无</td>
 							<td>否</td>
-							<td>添加行的回调函数 每添加一行触发一次</td>
+							<td>添加行的回调函数 每添加一行触发一次 <span class="text-green">返回当前行html</span></td>
 						</tr>
 						<tr>
-							<td>deleteback</td>
+							<td>fnDel</td>
 							<td>无</td>
 							<td>否</td>
-							<td>删除行的回调函数 每删除一行触发一次</td>
+							<td>删除行的回调函数 每删除一行触发一次  <span class="text-green">返回当前剩余行数</span></td>
+						</tr>
+						<tr>
+							<td>fnDelBrfore</td>
+							<td>无</td>
+							<td>否</td>
+							<td>删除行之前触发 <span class="text-green">返回当前行的jQuery对象</span></td>
 						</tr>
 						<tr>
 							<td>selector</td>
 							<td>[data-table='dynrow']</td>
 							<td>否</td>
 							<td>table内添加按钮选择器例：<br /><span class="text-green">&lt;a href="#" class="btn" data-table="dynrow"&gt;添加&lt;/a&gt;</span>
-								<br /><span class="text-red">PS：选择器只在当前table范围内查找，如需在在外部使用添加行请使用实例化对象调用addOneLine方法</span>
+								<br /><span class="text-red">PS：选择器只在当前table范围内查找，如需在在外部使用添加行请使用实例化对象调用addOneRow方法</span>
 							</td>
 						</tr>
 						<tr>
@@ -209,21 +221,25 @@
 		            		}
 		            	]
 		            },		
-		            callback : function (html) {
+		            fnAdd : function (html) {
 		                //@param html [type=dom] 当前添加上的这行html
 		                indexId++;			//添加按钮的元素上必须要有data-table='dynrow'属性
 		            },
-		            deleteback:function(len){
+		            fnDel:function(len){
 		            	//@param len [type=number] 剩余行数
 		            	if(len == 0){		//删除按钮的元素上必须要有delete样式 class="delete"
 		            		alert("都删除没了");
 		            	}
+		            },
+		            fnDelBefore:function($tr){
+		            	//当前删除行的jQuery对象
+		            	//console.log($tr);
 		            }
 				});
 					//清空所有行
 					table.replacement();
 					//添加一行
-					table..addOneLine();
+					table..addOneRow();
 					//删除一行 （最后添加的那一行）
 					table.replacement();
 					//获取最后添加一行的dom
@@ -274,7 +290,7 @@
 			</tr>
         </script>
         <script type="text/javascript" src="js/util/jquery.min.js"></script>
-        <script type="text/javascript" src="js/dynrow.min.js"></script>
+        <script type="text/javascript" src="js/dynrow.js"></script>
         <script type="text/javascript" src="js/util/prism.js"></script>
         <script type="text/javascript">
 			var indexId = 0,
@@ -322,21 +338,24 @@
 		            		}
 		            	]
 		            },		
-		            callback : function (html) {
+		            fnAdd : function (html) {
 		                indexId++;
 		            },
-		            deleteback:function(len){
+		            fnDel:function(len){
 		            	if(len == 0){
 		            		alert("都删除没了");
 		            	}
+		            },
+		            fnDelBefore:function($tr){
+		            	//console.log($tr);
 		            }
 				});
 
 				tplRow3 = new Dynrow("testTable3",{
 				    tmplId    : "tableTmpl3",
-		            deleteback:function(len){
+		            fnDel:function(len){
 		            	if(len == 0){
-		            		alert("你添加的都删除没了。");
+		            		alert("就剩下一行了，还删啊？");
 		            	}
 		            }
 				});
@@ -355,15 +374,15 @@
 			}
 
 			function addOneRow(){
-				tplRow1.addOneLine();
+				tplRow1.addOneRow();
 			}
 
 			function threeAddRow(){
-				tplRow3.addOneLine();
+				tplRow3.addOneRow();
 			}
 
 			function threeDeleteRow(){
-				tplRow3.deleteLastLine();
+				tplRow3.deleteLastRow();
 			}
 
 			function getRow(){
