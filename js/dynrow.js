@@ -400,7 +400,9 @@
                 return false;
             }
             if(opt.fnDelBefore === 'function'){
-                opt.fnDelBefore.call({}, $tr);
+                if(opt.fnDelBefore.call({}, $tr) == false){
+                    return false;
+                }
             }
             $tr.remove();
             that._minusRowspan();
