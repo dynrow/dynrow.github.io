@@ -1,5 +1,5 @@
 /**
- @Name   : dynrow v1.1 - 动态添加行插件
+ @Name   : dynrow v1.1.0 - 动态添加行插件
  @Author : 戈志刚
  @Date   : 2015-9-22
  @Site   ：http://dynrow.github.io
@@ -271,6 +271,8 @@
             throw Error("初始化时table id 未获取到...");
         }
     };
+    //版本号
+    DynamicRow.version = '1.1.0';
 
     DynamicRow.prototype = {
         init: function() {
