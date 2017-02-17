@@ -8,7 +8,7 @@
 ;!(function($) {
     //模版引擎
     /**
-     * [config 用的是闲心的 laytpl哦]
+     * [config 用的是贤心的 laytpl哦]
      * @type {Object}
      */
     var config = {
@@ -301,10 +301,15 @@
          */
         _addLine: function(obj, temp) {
             var opt = this.option,
-                template = $(temp);
+                template = $(temp),
+                addType  = opt.position ? 'before' : 'after';
             //为当前模版添唯一标识，添加行时判断最后一行用
             template.addClass(this.keyClass);
-            $(obj)[opt.position?'before':'after'](template);
+            //如果没有找到tr 则向tbody插入
+            if(this.isEmpty){
+                addType = 'append';
+            }
+            $(obj)[addType](template);
             //检查是否含有跨列
             this._addRowspan();
             //检查回调函数
@@ -369,12 +374,14 @@
          */
         _getAddDom: function() {
             var that = this,
-                dom = that.$element.find("#" + that.option.addNextId);
+                dom = that.$element.find("#" + that.option.addNextId),
+                that.isEmpty = false;
             if (dom.length === 0) {
                 dom = that.$element.find("." + that.keyClass);
             }
             if (dom.length === 0) {
-                dom = that.$element.find("tr");
+                that.isEmpty = true;
+                dom = that.$element;
             }
             return dom.length > 1 ? dom[dom.length - 1] : dom;
         },
