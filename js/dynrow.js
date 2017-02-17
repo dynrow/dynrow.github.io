@@ -373,15 +373,14 @@
          * @return {[type]} [description]
          */
         _getAddDom: function() {
-            var that = this,
-                dom = that.$element.find("#" + that.option.addNextId),
-                that.isEmpty = false;
+            var dom = this.$element.find("#" + this.option.addNextId);
+            this.isEmpty = false;
             if (dom.length === 0) {
-                dom = that.$element.find("." + that.keyClass);
+                dom = this.$element.find("." + this.keyClass);
             }
             if (dom.length === 0) {
-                that.isEmpty = true;
-                dom = that.$element;
+                this.isEmpty = true;
+                dom = this.$element;
             }
             return dom.length > 1 ? dom[dom.length - 1] : dom;
         },
