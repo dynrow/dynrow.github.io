@@ -5,3 +5,5 @@ Dynrow是一个动态添加行插件，小巧的身躯，灵活的运用
  	tmplId    : "tableTmpl"
  });
 ``` 
+
+[Demo地址](http://dynrow.github.io) 
