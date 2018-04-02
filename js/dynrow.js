@@ -5,7 +5,8 @@
  @Site   ：http://dynrow.github.io
  @License：Apache License2.0
  */
-;!(function($) {
+;
+!(function($) {
     //模版引擎
     /**
      * [config 用的是贤心的 laytpl哦]
@@ -103,154 +104,6 @@
             config[i] = options[i];
         }
     };
-    //填充表单方法
-    /**
-     * [Fill 用的是jquery.fill.js]
-     */
-    function Fill() {
-        this.defaults = {
-            styleElementName: 'none', // object | none
-            dateFormat: 'mm/dd/yy',
-            debug: false,
-            elementsExecuteEvents: ['checkbox', 'radio', 'select-one']
-        };
-    };
-    $.extend(Fill.prototype, {
-        setDefaults: function(settings) {
-            this.defaults = $.extend({}, this.defaults, settings);
-            return this;
-        },
-
-        fill: function(obj, _element, settings) {
-            if (settings == null) {
-                settings = {};
-            }
-            var options = $.extend({}, this.defaults, settings);
-            _element.find("*").each(function(i, item) {
-                if ($(item).is("input") || $(item).is("select") || $(item).is("textarea")) {
-                    try {
-                        var objName;
-                        var arrayAtribute;
-                        try {
-
-                            if (options.styleElementName == "object") {
-                                // Verificando se � um array
-                                if ($(item).attr("name").match(/\[[0-9]*\]/i)) {
-                                    objName = $(item).attr("name").replace(/^[a-z]*[0-9]*[a-z]*\./i, 'obj.').replace(/\[[0-9]*\].*/i, "");
-
-                                    arrayAtribute = $(item).attr("name").match(/\[[0-9]*\]\.[a-z0-9]*/i) + "";
-                                    arrayAtribute = arrayAtribute.replace(/\[[0-9]*\]\./i, "");
-                                } else {
-                                    objName = $(item).attr("name").replace(/^[a-z]*[0-9]*[a-z]*\./i, 'obj.');
-                                }
-                            } else if (options.styleElementName == "none") {
-                                objName = 'obj.' + $(item).attr("name");
-                            }
-                            var value = eval(objName);
-                        } catch (e) {
-                            if (options.debug) {
-                                debug(e.message);
-                            }
-                        }
-                        if (value != null) {
-                            switch (item.type) {
-                                case "hidden":
-                                case "password":
-                                case "textarea":
-                                    $(item).val(value);
-                                    break;
-
-                                case "text":
-                                    if ($(item).hasClass("hasDatepicker")) {
-                                        var re = /^[-+]*[0-9]*$/;
-                                        var dateValue = null;
-                                        if (re.test(value)) {
-                                            dateValue = new Date(parseInt(value));
-                                            var strDate = dateValue.getUTCFullYear() + '-' + (dateValue.getUTCMonth() + 1) + '-' + dateValue.getUTCDate();
-                                            dateValue = $.datepicker.parseDate('yy-mm-dd', strDate);
-                                        } else if (value) {
-                                            dateValue = $.datepicker.parseDate(options.dateFormat, value);
-                                        }
-                                        $(item).datepicker('setDate', dateValue);
-                                    } else if ($(item).attr("alt") == "double") {
-                                        $(item).val(value.toFixed(2));
-                                    } else {
-                                        $(item).val(value);
-                                    }
-                                    break;
-
-                                case "select-one":
-                                    if (value) {
-                                        $(item).val(value);
-                                    }
-                                    break;
-                                case "radio":
-                                    $(item).each(function(i, radio) {
-                                        if ($(radio).val() == value) {
-                                            $(radio).prop("checked", "checked");
-                                        }
-                                    });
-                                    break;
-                                case "checkbox":
-                                    if ($.isArray(value)) {
-                                        $.each(value, function(i, arrayItem) {
-                                            if (typeof(arrayItem) == 'object') {
-                                                arrayItemValue = eval("arrayItem." + arrayAtribute);
-                                            } else {
-                                                arrayItemValue = arrayItem;
-                                            }
-                                            if ($(item).val() == arrayItemValue) {
-                                                $(item).attr("checked", "checked");
-                                            }
-                                        });
-                                    } else {
-                                        var values = value.split(",");
-                                        for (var i = 0; i < values.length; i++) {
-                                            if (values[i] == $(item).val()) {
-                                                $(item).attr("checked", "checked");
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    break;
-                            }
-                            executeEvents(item);
-                        }
-                    } catch (e) {
-                        if (options.debug) {
-                            debug(e.message);
-                        }
-                    }
-
-                }
-
-            });
-        }
-    });
-    $.fn.fill = function(obj, settings) {
-        $.fill.fill(obj, $(this), settings);
-        return this;
-    };
-
-    $.fill = new Fill();
-
-    function executeEvents(element) {
-        if (jQuery.inArray($(element).attr('type'), $.fill.defaults.elementsExecuteEvents)) {
-            if ($(element).attr('onchange')) {
-                $(element).change();
-            }
-
-            if ($(element).attr('onclick')) {
-                $(element).click();
-            }
-        }
-    };
-
-    function debug(message) { // Throws error messages in the browser console.
-        if (window.console && window.console.log) {
-            window.console.log(message);
-        }
-    };
     /**
      * [Dynrow 动态添加行主体]
      * @这里是哥自己写的哦
@@ -278,22 +131,20 @@
         init: function() {
             this.keyClass = this.guid();
             this._addEvent();
-            this._echoListLine();
+            this._addDefaultLine();
         },
         DEFAULT: {
-            tmplId      : "",
-            addNextId   : null,
-            position    : false,
-            selector    : "[data-table='dynrow']",
-            params      : null,
-            deflutOne   : true,
-            deleteLast  : true,
-            fnAdd       : null,
-            fnDel       : null,
-            fnDelBefore : null,
-            echoData    : null,
-            echoForm    : null,
-            checkRow    : "[data-table='rowspan']"
+            tmplId: "",
+            addNextId: null,
+            position: false,
+            selector: "[data-table='dynrow']",
+            params: null,
+            deflutOne: true,
+            deleteLast: true,
+            fnAdd: null,
+            fnDel: null,
+            fnDelBefore: null,
+            checkRow: "[data-table='rowspan']"
         },
         /**
          * 添加一行
@@ -304,18 +155,18 @@
         _addLine: function(obj, temp) {
             var opt = this.option,
                 template = $(temp),
-                addType  = opt.position ? 'before' : 'after';
+                addType = opt.position ? 'before' : 'after';
             //为当前模版添唯一标识，添加行时判断最后一行用
             template.addClass(this.keyClass);
             //如果没有找到tr 则向tbody插入
-            if(this.isEmpty){
+            if (this.isEmpty) {
                 addType = 'append';
             }
             $(obj)[addType](template);
             //检查是否含有跨列
             this._addRowspan();
             //检查回调函数
-            if (typeof opt.fnAdd === "function") {
+            if ($.type(opt.fnAdd) === "function") {
                 opt.fnAdd.call(this, template);
             }
         },
@@ -325,7 +176,7 @@
          */
         _addEvent: function() {
             var that = this,
-                opt  = that.option;
+                opt = that.option;
             //添加行事件
             that.$element.on("click", opt.selector, function(e) {
                 if ($(this).hasClass("delete")) return false;
@@ -340,31 +191,7 @@
                 return false;
             });
         },
-        /**
-         * 回显数据调用
-         */
-        _echoListLine: function() {
-            var that = this,
-                obj = that.option.echoData;
-            obj ? that._insertData(obj) : that._addDefaultLine();
-        },
-        /**
-         * @param data          回显数据
-         */
-        _insertData: function(obj) {
-            var that = this,
-                value = "";
-            for (i in obj) value = i;
-            for (var i = 0; i < obj[value].length; i++) {
-                that.addRow();
-            }
-            if (that.option.echoForm) {
-                $("#"+that.option.echoForm).fill(obj);
-            } else {
-                throw Error('回显数据或formid填写错误！！');
-            }
-        },
-        _addDefaultLine : function(){
+        _addDefaultLine: function() {
             var that = this;
             if (that.option.deflutOne) {
                 that.addRow();
@@ -399,23 +226,23 @@
                 callback.call(undefined, html);
             });
         },
-        _deleteRow : function($tr){
+        _deleteRow: function($tr) {
             var that = this,
-                opt  = that.option,
-                len  = that.$element.find("." + that.keyClass).length;
+                opt = that.option,
+                len = that.$element.find("." + that.keyClass).length;
 
             if (!opt.deleteLast && len === 1) {
                 return false;
             }
-            if(opt.fnDelBefore === 'function'){
-                if(opt.fnDelBefore.call({}, $tr) == false){
+            if ($.type(opt.fnDelBefore) === 'function') {
+                if (opt.fnDelBefore.call({}, $tr) == false) {
                     return false;
                 }
             }
             $tr.remove();
             that._minusRowspan();
-            if (typeof opt.fnDel === "function") {
-                opt.fnDel.call({}, len-1);
+            if ($.type(opt.fnDel) === "function") {
+                opt.fnDel.call({}, len - 1);
             }
         },
         /**
@@ -439,11 +266,14 @@
         /**
          * [addRow 添加一行]
          */
-        addRow: function() {
+        addRow: function(num) {
             var that = this;
-            that._getLaytpl(that.option.tmplId, that.option.params, function(html) {
-                that._addLine(that._getAddDom(), html);
-            });
+            num = $.type(num) === 'number' ? num : 1;
+            for (var i = 0; i < num; i++) {
+                that._getLaytpl(that.option.tmplId, that.option.params, function(html) {
+                    that._addLine(that._getAddDom(), html);
+                });
+            }
         },
         /**
          * [deleteLastRow 删除一行]
@@ -454,15 +284,15 @@
             var that = this,
                 trs = that.$element.find("." + that.keyClass);
             if (trs.length) {
-                var trDom = trs[typeof index === 'number'?index:(trs.length - 1)];
-                if(trDom)that._deleteRow($(trDom));
+                var trDom = trs[typeof index === 'number' ? index : (trs.length - 1)];
+                if (trDom) that._deleteRow($(trDom));
             }
         },
-         /**
-         * [clearAll 清空所有行]
+        /**
+         * [deleteAll 清空所有行]
          * @return {[type]} [description]
          */
-        clearAll: function() {
+        deleteAll: function() {
             var that = this;
             var trs = that.$element.find("." + that.keyClass);
             if (trs.length) {
@@ -477,13 +307,13 @@
          * @parms  [index]  指点获取的行 如不填写index值则返回最后一行，如没有值则返回undefined
          * @return {[type]} [description]
          */
-        getRow : function(index){
+        getRow: function(index) {
             var result = null,
-                trs    = this.$element.find("." + this.keyClass);
-            if(trs.length) {
-                try{
-                    result = trs[typeof index === 'number'?index:(trs.length - 1)];
-                }catch(e){}
+                trs = this.$element.find("." + this.keyClass);
+            if (trs.length) {
+                try {
+                    result = trs[typeof index === 'number' ? index : (trs.length - 1)];
+                } catch (e) {}
             }
             return result;
         },
@@ -500,7 +330,7 @@
         }
     };
 
-    DynamicRow.v = "1.0";
+    DynamicRow.v = "1.1";
 
     var Dynrow = DynamicRow;
 

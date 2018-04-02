@@ -130,18 +130,6 @@
 							<td>控制向addNextId参数的上面还是下面添加行，默认false向下添加</td>
 						</tr>
 						<tr>
-							<td>echoForm</td>
-							<td>无</td>
-							<td>有回显数据则必填</td>
-							<td>回显form的id标识，只能是form的id 有回显数据时容器必须是form</td>
-						</tr>
-						<tr>
-							<td>echoData</td>
-							<td>无</td>
-							<td>否</td>
-							<td>回显数据</td>
-						</tr>
-						<tr>
 							<td>fnAdd</td>
 							<td>无</td>
 							<td>否</td>
@@ -182,97 +170,73 @@
 
 			<section>
                 <div>
-                    JAVASCRIPT 这个是第二个table的初始化代码带有回显数据的
+                    <span class="text-red">JAVASCRIPT 这个是第二个table的初始化代码带有回显数据的</span>
                 </div>
                 <pre>
-                    <code class="language-javascript">var table = new Dynrow("testTable",{
-				    tmplId     : "tableTmpl",	//模版id					    必填
-				    addNextId: "tmpl-tr-id",//tr的id从这行开始追加行数    选填
-				    params   : {			//模版参数					选填
-		                id     : "auto-tr-id",
-		                klass  : "matter",
-		                tds    : {
-		                    id     : "auto-td",
-		                    name   : "auto-td-name"
-		                }
-		            },
-		            reference  : null,
-		            deflutOne: true,		//是否默认添加一行			选填
-		            deleteLast: true,		//是否可以删除一行不剩		选填
-		            echoForm  : "formTest",	//回显form的id标识			选填（注*有回显数据则必填）
-		            //检查单元格是否含有跨列rpwspan的selector			    选填
-		            checkRow  : "[data-table='rowspan']", 
-		            echoData : {
-		            	data : [
-		            		{
-		            			myName : "11111",
-		            			myAge  : "11111",
-		            			myGroup: "11111"
-		            		},
-		            		{
-		            			myName : "22222",
-		            			myAge  : "22222",
-		            			myGroup: "22222"
-		            		},
-		            		{
-		            			myName : "33333",
-		            			myAge  : "33333",
-		            			myGroup: "33333"
-		            		}
-		            	]
-		            },		
-		            fnAdd : function (html) {
-		                //@param html [type=dom] 当前添加上的这行html
-		                indexId++;			//添加按钮的元素上必须要有data-table='dynrow'属性
-		            },
-		            fnDel:function(len){
-		            	//@param len [type=number] 剩余行数
-		            	if(len == 0){		//删除按钮的元素上必须要有delete样式 class="delete"
-		            		alert("都删除没了");
-		            	}
-		            },
-		            fnDelBefore:function($tr){
-		            	//当前删除行的jQuery对象
-		            	//console.log($tr);
-		            }
-				});
-					//清空所有行
-					table.clearAll();
-					//添加一行
-					table.addRow();
+<code class="language-javascript">var table = new Dynrow("testTable",{
+    tmplId     : "tableTmpl",	//模版id					    必填
+    addNextId: "tmpl-tr-id",//tr的id从这行开始追加行数    选填
+    params   : {			//模版参数					选填
+        id     : "auto-tr-id",
+        klass  : "matter",
+        tds    : {
+            id     : "auto-td",
+            name   : "auto-td-name"
+        }
+    },
+    reference  : null,
+    deflutOne: true,		//是否默认添加一行			选填
+    deleteLast: true,		//是否可以删除一行不剩		选填
+    //检查单元格是否含有跨列rpwspan的selector			    选填
+    checkRow  : "[data-table='rowspan']", 
+    fnAdd : function (html) {
+        //@param html [type=dom] 当前添加上的这行html
+        indexId++;			//添加按钮的元素上必须要有data-table='dynrow'属性
+    },
+    fnDel:function(len){
+    	//@param len [type=number] 剩余行数
+    	if(len == 0){		//删除按钮的元素上必须要有delete样式 class="delete"
+    		alert("都删除没了");
+    	}
+    },
+    fnDelBefore:function($tr){
+    	//当前删除行的jQuery对象
+    	//console.log($tr);
+    }
+});
+//清空所有行
+table.clearAll();
+//添加一行
+table.addRow();
 
-					/**
-					*  删除一行
-					*  如不填写index值则删除最后一行
-					*/
-					table.deleteRow(index);
+/**
+*  删除一行
+*  如不填写index值则删除最后一行
+*/
+table.deleteRow(index);
 
-					/**
-					*  获取行的dom对象 
-					*  如不填写index值则返回最后一行，如没有值则返回undefined
-					*/
-					table.getRow(index);
-                    </code>
+/**
+*  获取行的dom对象 
+*  如不填写index值则返回最后一行，如没有值则返回undefined
+*/
+table.getRow(index);
+</code>
                 </pre>
             </section>
             <section>
                 <div>
-                    HTML 第二个table的模版代码
-                    <span class="text-red"><p>
-                    	注意模版中的 data[{{ indexId}}].myName 中的data必须要和echoData参数中的data一致。。
-                    	例如：echoData中的参数更改成 list[{...},{...}] 那么模版中就需要更改成 list[{{ indexId}}].myName
-                    </p></span>
+                  
+                    <span class="text-red">HTML 第二个table的模版代码</span>
                 </div>
-                <pre>
-                    <code class="language-javascript">&lt;script id="tableTmpl" type="text/x-jquery-tmpl"&gt;
-            &lt;tr&gt;
-				&lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myName"/&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myAge"/&gt;&lt;/td&gt;
-	            &lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myGroup"/&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;a href="#" class="btn btn-error delete"&gt;删除&lt;/a&gt;&lt;/td&gt;
-			&lt;/tr&gt;
-        &lt;/script&gt;
-                   </code>
+                <pre><code class="language-javascript">&lt;script id="tableTmpl" type="text/x-jquery-tmpl"&gt;
+	&lt;tr&gt;
+		&lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myName"/&gt;&lt;/td&gt;
+		&lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myAge"/&gt;&lt;/td&gt;
+	    &lt;td&gt;&lt;input type="text" name="data[{{ indexId}}].myGroup"/&gt;&lt;/td&gt;
+		&lt;td&gt;&lt;a href="#" class="btn btn-error delete"&gt;删除&lt;/a&gt;&lt;/td&gt;
+	&lt;/tr&gt;
+&lt;/script&gt;
+       </code>
                 </pre>
             </section>
 		</div>
@@ -298,7 +262,7 @@
 			</tr>
         </script>
         <script type="text/javascript" src="js/util/jquery.min.js"></script>
-        <script type="text/javascript" src="js/dynrow.min.js"></script>
+        <script type="text/javascript" src="js/dynrow.js"></script>
         <script type="text/javascript" src="js/util/prism.js"></script>
         <script type="text/javascript">
 			var indexId = 0,
@@ -325,27 +289,7 @@
 		            reference : null,
 		            deflutOne : true,		//是否默认添加一行			选填
 		            deleteLast: true,		//是否可以删除一行不剩		选填
-		            echoForm  : "formTest",	//回显form的id标识
 		            checkRow  : "[data-table='rowspan']", //检查单元格是否含有跨列rpwspan的selector
-		            echoData  : {
-		            	data : [
-		            		{
-		            			myName : "11111",
-		            			myAge  : "11111",
-		            			myGroup: "11111"
-		            		},
-		            		{
-		            			myName : "22222",
-		            			myAge  : "22222",
-		            			myGroup: "22222"
-		            		},
-		            		{
-		            			myName : "33333",
-		            			myAge  : "33333",
-		            			myGroup: "33333"
-		            		}
-		            	]
-		            },		
 		            fnAdd : function (html) {
 		                indexId++;
 		            },
@@ -370,15 +314,15 @@
 			});
 
 			function clearOne(){
-				tplRow1.clearAll();
+				tplRow1.deleteAll();
 			}
 
 			function clearTwo(){
-				tplRow2.clearAll();
+				tplRow2.deleteAll();
 			}
 
 			function clearThree(){
-				tplRow3.clearAll();
+				tplRow3.deleteAll();
 			}
 
 			function addOneRow(){
