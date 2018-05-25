@@ -230,15 +230,16 @@
             var that = this,
                 opt = that.option,
                 len = that.$element.find("." + that.keyClass).length;
-
-            if (!opt.deleteLast && len === 1) {
-                return false;
-            }
+         
             if ($.type(opt.fnDelBefore) === 'function') {
                 if (opt.fnDelBefore.call({}, $tr) == false) {
                     return false;
                 }
             }
+            if (!opt.deleteLast && len === 1) {
+                return false;
+            }
+            
             $tr.remove();
             that._minusRowspan();
             if ($.type(opt.fnDel) === "function") {
